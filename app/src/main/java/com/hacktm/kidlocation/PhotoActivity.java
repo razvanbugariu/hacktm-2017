@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import okhttp3.MediaType;
@@ -30,7 +32,9 @@ import retrofit2.Retrofit;
 
 public class PhotoActivity extends AppCompatActivity {
 
-    int TAKE_PHOTO_CODE = 0;
+    int TAKE_PHOTO_CODE = 1;
+    String mCurrentPhotoPath;
+    String filename;
 
     private ImageView imageView;
 
@@ -41,36 +45,59 @@ public class PhotoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo);
         imageView = (ImageView) findViewById(R.id.imageViewPhoto);
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, TAKE_PHOTO_CODE);
+        File photoFile = null;
+        try {
+            photoFile = createImagineFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(photoFile != null) {
+            Log.d("HACK_TAG", Uri.fromFile(photoFile).toString());
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+            Log.d("HACK_TAG", "ASASASASASASASASASASASA");
+            startActivityForResult(cameraIntent, TAKE_PHOTO_CODE);
+            Log.d("HACK_TAG", "ASASASASASASASASASASASA");
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-        imageView.setImageBitmap(imageBitmap);
-        Log.d("TASK_TAG", imageBitmap.getNinePatchChunk() + " " + imageBitmap.getByteCount());
-//        imageView.get
-        sendPhoto(imageBitmap);
+        Log.d("HACK_TAG", "ASASASASASASASASASASASA");
+//        Bundle bundle = data.getExtras();
+//        Bitmap imageBitmap = (Bitmap) bundle.get("data");
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), filename);
+//        imageView.setImageBitmap(imageBitmap);
+        Log.d("TASK_TAG", file.getName());
+        sendPhoto(file);
     }
 
-    private void sendPhoto(Bitmap bitmap) {
+    private File createImagineFile() throws IOException {
+        String timestamp = new SimpleDateFormat("yyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG" + timestamp;
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        filename = imageFileName + ".jpg";
+        File image = new File(storageDir, filename);
+        return image;
+    }
+
+    private void sendPhoto(File file) {
+        Log.d("HACK_TAG", "ASASASASASASASASASASASA");
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         RetroFitService service = new Retrofit.Builder().baseUrl("http://192.168.43.92:8080/").client(client).build().create(RetroFitService.class);
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
+//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, file);
+//        byte[] byteArray = stream.toByteArray();
 
-        Log.d("HACK_TAG", byteArray.toString());
 
-        RequestBody reqFile = RequestBody.create(MediaType.parse("image"), byteArray);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", "file", reqFile);
+        RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", filename, reqFile);
 
-        retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body);
+        retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, "23.4", "56.3");
         req.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
