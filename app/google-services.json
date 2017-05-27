@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "371028284507",
+    "firebase_url": "https://kidlocator-6fc1c.firebaseio.com",
+    "project_id": "kidlocator-6fc1c",
+    "storage_bucket": "kidlocator-6fc1c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371028284507:android:22b6bbc8d5e0d186",
+        "android_client_info": {
+          "package_name": "com.hacktm.kidlocation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371028284507-tgvp4ap2ur3f8ubr6vjuq5qf3qsnt8o5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hacktm.kidlocation",
+            "certificate_hash": "302a3faecbe3ca8ea07e8c6a3aa2657cfc622e96"
+          }
+        },
+        {
+          "client_id": "371028284507-5hankf8r761qfd7oim5vicn6r1r1buka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5hpCqD5jDdQXJap4DME3hjyDuxrY9Dds"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371028284507-5hankf8r761qfd7oim5vicn6r1r1buka.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
