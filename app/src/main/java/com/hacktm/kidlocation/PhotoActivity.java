@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -45,7 +46,10 @@ public class PhotoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if(photoFile != null) {
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+
+            Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", photoFile);
+//            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
             startActivityForResult(cameraIntent, TAKE_PHOTO_CODE);
         }
     }
@@ -53,6 +57,7 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("HACK_TAG", "SASAS");
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), filename);
         sendPhoto(file);
     }
