@@ -1,19 +1,16 @@
 package com.hacktm.kidlocation;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -33,17 +30,13 @@ import retrofit2.Retrofit;
 public class PhotoActivity extends AppCompatActivity {
 
     int TAKE_PHOTO_CODE = 1;
-    String mCurrentPhotoPath;
     String filename;
-
-    private ImageView imageView;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo);
-        imageView = (ImageView) findViewById(R.id.imageViewPhoto);
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         try {
@@ -52,23 +45,15 @@ public class PhotoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         if(photoFile != null) {
-            Log.d("HACK_TAG", Uri.fromFile(photoFile).toString());
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-            Log.d("HACK_TAG", "ASASASASASASASASASASASA");
             startActivityForResult(cameraIntent, TAKE_PHOTO_CODE);
-            Log.d("HACK_TAG", "ASASASASASASASASASASASA");
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("HACK_TAG", "ASASASASASASASASASASASA");
-//        Bundle bundle = data.getExtras();
-//        Bitmap imageBitmap = (Bitmap) bundle.get("data");
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), filename);
-//        imageView.setImageBitmap(imageBitmap);
-        Log.d("TASK_TAG", file.getName());
         sendPhoto(file);
     }
 
@@ -82,26 +67,24 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void sendPhoto(File file) {
-        Log.d("HACK_TAG", "ASASASASASASASASASASASA");
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         RetroFitService service = new Retrofit.Builder().baseUrl("http://192.168.43.92:8080/").client(client).build().create(RetroFitService.class);
 
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, file);
-//        byte[] byteArray = stream.toByteArray();
-
-
         RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", filename, reqFile);
 
-        retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, "23.4", "56.3");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String xCoord = sharedPreferences.getString("xCoord", "23.4");
+        String yCoord = sharedPreferences.getString("yCoord", "65.4");
+
+        retrofit2.Call<okhttp3.ResponseBody> req = service.postImage(body, xCoord, yCoord);
         req.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d("HACK_TAG", "YES");
+                Log.d("HACK_TAG", "Sent");
             }
 
             @Override

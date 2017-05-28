@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">KidLocator</string>
+    <string name="yLabel">y:</string>
+    <string name="xLabel">x:</string>
+    <string name="saveLabel">Save</string>
 </resources>
